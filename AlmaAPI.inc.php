@@ -9,7 +9,7 @@
  *
 **/
 
-require_once('php-restclient/restclient.php');
+require_once('vendor/tcdent/php-restclient/restclient.php');
 
 class AlmaAPI {
 	/**
@@ -36,9 +36,9 @@ class AlmaAPI {
 	/**
 	 * Constructor
 	 * @param $baseUrl string the base url for the Alma instance, e.g. "https://api-na.hosted.exlibrisgroup.com"
-         * @param $apiKey string the API Key for your Alma instance, e.g. ""
+         * @param $apiKey string the API Key for your Alma instance, e.g. "AW0xHK7IYPHN5Z9C29729Nc4z4ccczrMEEoW"
 	 **/
-	public function __contruct($baseUrl, $apiKey) {
+	public function __construct($baseUrl, $apiKey) {
 		$this->_baseUrl = $baseUrl;
 		$this->_apikey = $apiKey;
 		$this->_client = $this->getClient();
@@ -49,7 +49,7 @@ class AlmaAPI {
 	 * @return void
 	 **/
 	public function getClient() {
-		$this->_client = new RestClient([
+		return new RestClient([
 			'base_url' => $this->_baseUrl,
 			'headers' => [
 				'Authorization' => 'apikey '.$this->_apikey,

@@ -13,12 +13,12 @@ require('FlywireInvoiceAPI.inc.php');
 require('settings.php'); // See settings.template.php
 
 $patronId = $ENV{SAML_USER_VARIABLE};
-$almaInvoice = null;
+$almaFees = null;
 $flywireInvoice = null;
 $error = null;
 if ($patronId) {
-	$almaInvoiceAPI = new AlmaInvoiceAPI(ALMA_URL, ALMA_API_KEY);
-	$flywireInvoiceAPI = new FlywireInvoiceAPI(FLYWIRE_TESTPROD, FLYWIRE_CLIENT_ID, FLYWIRE_CLIENT_SECRET, FLYWIRE_COMPANY_REF, FLYWIRE_COMPANY_ID);
+	$almaUserAPI = new AlmaUserAPI(ALMA_URL, ALMA_API_KEY);
+	$flywireInvoiceAPI = new FlywireInvoiceAPI(FLYWIRE_TEST, FLYWIRE_CLIENT_ID, FLYWIRE_CLIENT_SECRET, FLYWIRE_COMPANY_REF, FLYWIRE_COMPANY_ID);
 	try {
 		$flywirePatron = null;
 		$almaUser = $almaUserAPI->getUserByExternalId($patronId);
@@ -38,9 +38,10 @@ if ($patronId) {
 		$error = 'Please try again later';
 	}
 }
+header('Content-type: application/json');
 if ($error) {
 	print json_encode(array('status' => 'error', 'message' => $error));
-} else if (!$almaInvoice) {
+} else if (!$almaFees) {
 	print json_encode(array('status' => 'noop', 'message' => 'There are no outstanding changes.'));
 } else {
 	print json_encode(array('status' => 'success', 'message' => ''));
@@ -51,6 +52,7 @@ if ($error) {
  * @param $contact array The Flywire Contact as an associative array
  * @param $finefee array The Alma Fines/Fees as an associative array
  * @return array The Flywire Invoice as an associative array
+ * @throws Exception
  **/
 function constructInvoice($contact, $finefee) {
 	if (!$contact['companyId']) {
@@ -95,6 +97,7 @@ function constructInvoice($contact, $finefee) {
  * Create a Flywire Contact from an Alma User
  * @param $user array The Alma User as an associative array
  * @return array The Flywire Contact as an associative array
+ * @throws Exception
  **/
 function constructContact($user) {
 	if (!$user['primary_id']) {
@@ -138,7 +141,7 @@ function constructContact($user) {
 			'state' => $preferredAddress['state'],
 			'postalCode' => $preferredAddress['postalCode'],
 		),
-		'acountNumber' => 'alma'.$user['primary_id'],
+		'acountNumber' => 'alma_'.$user['primary_id'],
 		'tags' => array(
 			array(
 				'name' => 'CUSTOMER',

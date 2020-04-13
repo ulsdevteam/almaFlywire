@@ -9,7 +9,7 @@
  *
 **/
 
-require_once('php-restclient/restclient.php');
+require_once('vendor/tcdent/php-restclient/restclient.php');
 
 class FlywireInvoiceAPI {
 	/**
@@ -65,9 +65,9 @@ class FlywireInvoiceAPI {
          * @param $companyRef string e.g. "1N03K8"
          * @param $companyId int e.g. 239818
 	 **/
-	public function __contruct($test, $clientId, $clientSecret, $companyRef, $companyId) {
-		$this->_baseUrl = $test ? 'https://api.demo.flywire.com' : 'https://api.flywire.com';
-		$this->_authUrl = $test ? 'https://app.flywire.lol/rest' : 'https://app.flywire.com/rest';
+	public function __construct($test, $clientId, $clientSecret, $companyRef, $companyId) {
+		$this->_authUrl = $test ? 'https://api.demo.flywire.com' : 'https://api.flywire.com';
+		$this->_baseUrl = $test ? 'https://app.flywire.lol/rest' : 'https://app.flywire.com/rest';
 		$this->_clientId = $clientId;
 		$this->_clientSecret = $clientSecret;
 		$this->_companyRef = $companyRef;
@@ -81,7 +81,7 @@ class FlywireInvoiceAPI {
 	 * @return void
 	 **/
 	public function getClient() {
-		$this->_client = new RestClient([
+		return $this->_client = new RestClient([
 			'base_url' => $this->_baseUrl.'/company/'.urlencode($this->_companyRef),
 			'headers' => [
 				'Authorization' => 'Bearer '.$this->getAuthToken(),

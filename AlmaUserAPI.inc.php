@@ -12,10 +12,10 @@ require_once('AlmaAPI.inc.php');
 
 class AlmaUserAPI extends AlmaAPI {
 	/**
-         * @copydoc AlamAPI::__construct()
+	* @copydoc AlamAPI::__construct()
 	 **/
-	public function __contruct($baseUrl, $apiKey) {
-		parent::constuct($baseUrl, $apiKey);
+	public function __construct($baseUrl, $apiKey) {
+		parent::__construct($baseUrl, $apiKey);
 		$this->_endpoint = '/almaws/v1/users';
 	}
 
