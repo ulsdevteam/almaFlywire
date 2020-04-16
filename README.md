@@ -4,11 +4,11 @@ This application provides integration between ExLibris Alma and Flywire, to invo
 
 ## Expected workflow
 
-* Patron initiates an AJAX call from Primo, indicating they want to pay a fees online
+* Patron initiates an AJAX call from Primo, indicating they want to pay fees online
 * Application responds to authenticated AJAX request by
   * Querying Alma for existing fines and fees
-  * Deleting any unpaid fine/fee invoices from FlyWire
-  * Creating a new invoice of fines/fees in FlyWire
+  * Deleting any unpaid fine/fee invoices from Flywire
+  * Creating a new invoice of fines/fees in Flywire
   * Responding with a JSON indicating success/failure/nothing-to-do.
 
 ## Author / License

@@ -37,6 +37,9 @@ if ($patronId) {
 		error_log($ex);
 		$error = 'Please try again later';
 	}
+} else {
+	error_log('Enviroment variable '.SAML_USER_VARIABLE.' was empty.');
+	$error = 'Authentication problem.';
 }
 header('Content-type: application/json');
 if ($error) {
@@ -72,8 +75,8 @@ function constructInvoice($contact, $finefee) {
 	}
 	$flywireInvoice = array(
 		'currency' => 'USD',
-		'date' => date('%Y-%m-%dT%H:%M:%S%z'),
-		'dueDate' => date('%Y-%m-%dT%H:%M:%S%z'),
+		'date' => date('Y-m-d\TH:i:s\z'),
+		'dueDate' => date('Y-m-d\TH:i:s\z'),
 		'paymentMethod' => 'PAY_NOW',
 		'details' => array(
 			'services' => $lineItems,
@@ -145,7 +148,7 @@ function constructContact($user) {
 		'tags' => array(
 			array(
 				'name' => 'CUSTOMER',
-				'date' => date('%Y-%m-%dT%H:%M:%S%z'),
+				'date' => date('Y-m-d\TH:i:s\z'),
 			),
 		),
 	);

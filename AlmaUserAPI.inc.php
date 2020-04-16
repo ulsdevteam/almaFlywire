@@ -25,11 +25,11 @@ class AlmaUserAPI extends AlmaAPI {
 	 * @throws Exception
 	 **/
 	public function getUserByExternalId($externalId) {
-		$users = $this->_getExpecting($this->_endpoint.'/?source_user_id='.urlencode($externalId), 200, 'User by External Id');
-		if ($users['total_record_count'] == 1) {
-			return $users['user'][0];
+		$user = $this->_getExpecting($this->_endpoint.'/'.urlencode($externalId), 200, 'User by External Id');
+		if ($user) {
+			return $user;
 		} else {
-			throw new Exception('Found '.$users['total_record_count'].' users, expected 1.');
+			throw new Exception('No user found for '.$externalId);
 		}
 	}
 

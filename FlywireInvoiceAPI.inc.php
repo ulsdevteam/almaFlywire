@@ -108,7 +108,7 @@ class FlywireInvoiceAPI {
 		);
 		$response = $client->post('/oauth/token', json_encode($auth));
 		if ($response->info->http_code == 200 || $response->info->http_code == 201) {
-			$data = json_decode($response->response);
+			$data = json_decode($response->response, true);
 		} else {
 			throw new Exception('Failed request for Flywire authentication');
 		}
@@ -128,11 +128,11 @@ class FlywireInvoiceAPI {
 	 * @throws Exception
 	 **/
 	public function getContactByAccountNumber($accountNumber) {
-		$response = $this->_client->get('/contact?s=accountNumber=='.urlencode($accountNumber));
+		$response = $this->_client->get('/contact?_s=(accountNumber=='.urlencode($accountNumber).')');
 		if ($response->info->http_code == 200) {
-			$data = json_decode($response->response);
-			if ($data) {
-				return $data;
+			$data = json_decode($response->response, true);
+			if (count($data) == 1) {
+				return $data[0];
 			} else {
 				throw new Exception('Failed to decode Contact');
 			}
@@ -153,7 +153,7 @@ class FlywireInvoiceAPI {
 	public function getUnpaidInvoices($contact, $countOnly = false) {
 		$response = $this->_client->get('/invoice'.($countOnly ? '/counts' : '').'?s=status=DUE;receiverId='.urlencode($contact['companyId']));
 		if ($response->info->http_code == 200) {
-			$data = json_decode($response->response);
+			$data = json_decode($response->response, true);
 			if ($data) {
 				return $data;
 			} else {
@@ -210,7 +210,7 @@ class FlywireInvoiceAPI {
 	public function createContact($contact) {
 		$response = $this->_client->post('/contact', $contact);
 		if ($response->info->http_code == 200) {
-			$data = json_decode($response->response);
+			$data = json_decode($response->response, true);
 			if ($data['companyId']) {
 				return $data;
 			} else {

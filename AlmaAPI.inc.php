@@ -36,7 +36,7 @@ class AlmaAPI {
 	/**
 	 * Constructor
 	 * @param $baseUrl string the base url for the Alma instance, e.g. "https://api-na.hosted.exlibrisgroup.com"
-         * @param $apiKey string the API Key for your Alma instance, e.g. "AW0xHK7IYPHN5Z9C29729Nc4z4ccczrMEEoW"
+	 * @param $apiKey string the API Key for your Alma instance, e.g. "AW0xHK7IYPHN5Z9C29729Nc4z4ccczrMEEoW"
 	 **/
 	public function __construct($baseUrl, $apiKey) {
 		$this->_baseUrl = $baseUrl;
@@ -70,9 +70,9 @@ class AlmaAPI {
 		if (!$object) {
 			$object = $uri;
 		}
-		$response = $this->_client->get($this->_baseUrl.$uri);
+		$response = $this->_client->get($uri);
 		if ($response->info->http_code == $expecting) {
-			$data = json_decode($response->response);
+			$data = json_decode($response->response, true);
 			if ($data) {
 				return $data;
 			} else {
