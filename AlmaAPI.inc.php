@@ -9,7 +9,8 @@
  *
 **/
 
-require_once('vendor/tcdent/php-restclient/restclient.php');
+require_once 'vendor/tcdent/php-restclient/restclient.php';
+require_once 'RestApiException.inc.php';
 
 class AlmaAPI {
 	/**
@@ -76,12 +77,11 @@ class AlmaAPI {
 			if ($data) {
 				return $data;
 			} else {
-				throw new Exception('Failed to decode '.$object);
+				throw new RestApiException($response);
 			}
 		} else {
-			throw new Exception('Alma Webservice did not return '.$expecting.' for '.$object);
+			throw new RestApiException($response);
 		}
-		throw new Exception('Failed to get '.$object);
 	}
 
 }

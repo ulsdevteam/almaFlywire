@@ -9,7 +9,8 @@
  *
 **/
 
-require_once('vendor/tcdent/php-restclient/restclient.php');
+require_once 'vendor/tcdent/php-restclient/restclient.php';
+require_once 'RestApiException.inc.php';
 
 class FlywireInvoiceAPI {
 	/**
@@ -110,13 +111,13 @@ class FlywireInvoiceAPI {
 		if ($response->info->http_code == 200 || $response->info->http_code == 201) {
 			$data = json_decode($response->response, true);
 		} else {
-			throw new Exception('Failed request for Flywire authentication');
+			throw new RestApiException($response);
 		}
 		if ($data['access_token']) {
 			$this->_authToken = $data['access_token'];
 			$this->_authTokenExpires = time() + $data['expires_in'];
 		} else {
-			throw new Exception('Bad response from Flywire authentication');
+			throw new RestApiException($response);
 		}
 		return $this->_authToken;
 	}
@@ -134,12 +135,12 @@ class FlywireInvoiceAPI {
 			if (count($data) == 1) {
 				return $data[0];
 			} else {
-				throw new Exception('Failed to decode Contact');
+				throw new RestApiException($response);
 			}
 		} else if ($response->info->http_code == 404) {
 			return false;
 		} else {
-			throw new Exception('Unxepected response from Flywire Contact search');
+			throw new RestApiException($response);
 		}
 	}
 
@@ -157,10 +158,10 @@ class FlywireInvoiceAPI {
 			if ($data) {
 				return $data;
 			} else {
-				throw new Exception('Failed to decode Invoices');
+				throw new RestApiException($response);
 			}
 		} else {
-			throw new Exception('Unxepected response from Flywire Invoice search');
+			throw new RestApiException($response);
 		}
 	}
 
@@ -181,7 +182,7 @@ class FlywireInvoiceAPI {
 			}
 			$response = $this->_client->delete('/invoice/'.urlencode($invoiceIds));
 			if ($response->info->http_code != 204) {
-				throw new Exception('Unxepected response from Flywire Invoice delete');
+				throw new RestApiException($response);
 			}
 		}
 	}
@@ -197,7 +198,7 @@ class FlywireInvoiceAPI {
 		if ($response->info->http_code == 201) {
 			return array_pop(explode('/', $response->info->redirect_url));
 		} else {
-			throw new Exception('Unxepected response from Flywire Invoice creation');
+			throw new RestApiException($response);
 		}
 	}
 
@@ -214,10 +215,10 @@ class FlywireInvoiceAPI {
 			if ($data['companyId']) {
 				return $data;
 			} else {
-				throw new Exception('Failed to decode Contact');
+				throw new RestApiException($response);
 			}
 		} else {
-			throw new Exception('Unxepected response from Flywire Contact creation');
+			throw new RestApiException($response);
 		}
 	}
 

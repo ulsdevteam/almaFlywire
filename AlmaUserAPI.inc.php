@@ -8,7 +8,7 @@
  * @brief Interface against Alma User API endpoint
  *
 **/
-require_once('AlmaAPI.inc.php');
+require_once 'AlmaAPI.inc.php';
 
 class AlmaUserAPI extends AlmaAPI {
 	/**
@@ -25,12 +25,7 @@ class AlmaUserAPI extends AlmaAPI {
 	 * @throws Exception
 	 **/
 	public function getUserByExternalId($externalId) {
-		$user = $this->_getExpecting($this->_endpoint.'/'.urlencode($externalId), 200, 'User by External Id');
-		if ($user) {
-			return $user;
-		} else {
-			throw new Exception('No user found for '.$externalId);
-		}
+		return $this->_getExpecting($this->_endpoint.'/'.urlencode($externalId), 200, 'User by External Id');
 	}
 
 	/**
