@@ -63,14 +63,10 @@ class AlmaAPI {
 	/**
 	 * @param $uri string The URL to fetch
 	 * @param $expecting int The expected HTTP code
-	 * @param $object string Optional Human readable description of call
 	 * @return array The associative array of the response
 	 * @throws Exception
 	 **/
-	protected function _getExpecting($uri, $expecting, $object = '') {
-		if (!$object) {
-			$object = $uri;
-		}
+	protected function _getExpecting($uri, $expecting) {
 		$response = $this->_client->get($uri);
 		if ($response->info->http_code == $expecting) {
 			$data = json_decode($response->response, true);
