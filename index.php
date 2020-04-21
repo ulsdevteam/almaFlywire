@@ -61,22 +61,22 @@ function constructInvoice($contact, $finefee) {
 	if (!$contact['companyId']) {
 		throw new Exception('Invalid Flywire Contact');
 	}
-	if (!count($finefee['fees']['fee'])) {
+	if (!count($finefee['fee'])) {
 		throw new Exception('Invalid Alma Fees');
 	}
 	$lineItems = array();
-	foreach ($finefee['fees'] as $fee) {
+	foreach ($finefee['fee'] as $fee) {
 		$lineItems[] = array(
-			'name' => $fee['type'].': '.$fee['title'],
-			'description' => 'Item '.$fee['barcode'].' from '.$fee['owner'],
+			'name' => $fee['type']['desc'].': '.$fee['title'],
+			'description' => 'Item '.$fee['barcode']['value'].' from '.$fee['owner']['desc'],
 			'unitPrice' => $fee['balance'],
 			'quantity' => 1,
 		);
 	}
 	$flywireInvoice = array(
 		'currency' => 'USD',
-		'date' => date('Y-m-d\TH:i:s\z'),
-		'dueDate' => date('Y-m-d\TH:i:s\z'),
+		'date' => date('Y-m-d\TH:i:s.000\Z'),
+		'dueDate' => date('Y-m-d\TH:i:s.000\Z'),
 		'paymentMethod' => 'PAY_NOW',
 		'details' => array(
 			'services' => $lineItems,
@@ -112,6 +112,9 @@ function constructContact($user) {
 			$preferredEmail = $email['email_address'];
 		}
 	}
+	if (!$preferredEmail) {
+		throw new Exception('No email for Alma User');
+	}
 	$preferredPhone = '';
 	foreach ($user['contact_info']['phone'] as $phone) {
 		if (!$preferredPhone || $phone['preferred']) {
@@ -144,11 +147,11 @@ function constructContact($user) {
 			'state' => $preferredAddress['state'],
 			'postalCode' => $preferredAddress['postalCode'],
 		),
-		'acountNumber' => 'alma_'.$user['primary_id'],
+		'accountNumber' => 'alma_'.$user['primary_id'],
 		'tags' => array(
 			array(
 				'name' => 'CUSTOMER',
-				'date' => date('Y-m-d\TH:i:s\z'),
+				'date' => date('Y-m-d\TH:i:s.000\Z'),
 			),
 		),
 	);

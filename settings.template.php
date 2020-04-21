@@ -17,3 +17,5 @@ define('FLYWIRE_COMPANY_REF', '1N03K8');
 define('FLYWIRE_COMPANY_ID', 239818);
 // FLYWIRE_COMPANY_PAYCONFIG is the Payment Configuration Code to use in the Flywire data
 define('FLYWIRE_COMPANY_PAYCONFIG', 'MYCONFIG');
+// FLYWIRE_ACCOUNTNUMBER_PREFIX is the option prefix for accountnumbers in Flywire
+define('FLYWIRE_ACCOUNTNUMBER_PREFIX', 'myapp_');

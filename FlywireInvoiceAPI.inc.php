@@ -59,6 +59,11 @@ class FlywireInvoiceAPI {
 	protected $_authTokenExpires = null;
 
 	/**
+	 * @var $_cTypeJson array Content Type JSON Constant
+	 **/
+	private $_cTypeJson = array('Content-Type' => 'application/json');
+
+	/**
 	 * Constructor
 	 * @param $test boolean Whether to use test API endpoints
 	 * @param $clientId string The client id for the Flywire instance, e.g. "e9cbfabd-50a2-4528-aa21-278d1159d244"
@@ -129,11 +134,28 @@ class FlywireInvoiceAPI {
 	 * @throws Exception
 	 **/
 	public function getContactByAccountNumber($accountNumber) {
-		$response = $this->_client->get('/contact?_s=(accountNumber=='.urlencode($accountNumber).')');
+		$data = $this->getContacts('(accountNumber=='.urlencode($accountNumber).')');
+		if ($data === false) {
+			return false;
+		} else if (count($data) == 1) {
+			return $data[0];
+		} else {
+			throw new Exception('Too many matching contacts');
+		}
+	}
+
+	/**
+	 * Get Flywire contacts
+	 * @param $search string Optional urlencoded search string
+	 * @return array|boolean The associative array of contacts, or false if none found
+	 * @throws Exception
+	 **/
+	public function getContacts($search = '') {
+		$response = $this->_client->get('/contact' . ($search ? '?_s=' . $search : ''));
 		if ($response->info->http_code == 200) {
 			$data = json_decode($response->response, true);
-			if (count($data) == 1) {
-				return $data[0];
+			if (count($data)) {
+				return $data;
 			} else {
 				throw new RestApiException($response);
 			}
@@ -152,7 +174,7 @@ class FlywireInvoiceAPI {
 	 * @throws Exception
 	 **/
 	public function getUnpaidInvoices($contact, $countOnly = false) {
-		$response = $this->_client->get('/invoice'.($countOnly ? '/counts' : '').'?s=status=DUE;receiverId='.urlencode($contact['companyId']));
+		$response = $this->_client->get('/invoice'.($countOnly ? '/counts' : '').'?_s=status==DUE;receiverId=='.urlencode($contact['companyId']));
 		if ($response->info->http_code == 200) {
 			$data = json_decode($response->response, true);
 			if ($data) {
@@ -194,9 +216,9 @@ class FlywireInvoiceAPI {
 	 * @throws Exception
 	 **/
 	public function postInvoice($invoice) {
-		$response = $this->_client->post('/invoice', $invoice);
+		$response = $this->_client->post('/invoice', json_encode($invoice), $this->_cTypeJson);
 		if ($response->info->http_code == 201) {
-			return array_pop(explode('/', $response->info->redirect_url));
+			return array_pop(explode('/', $response->headers->location));
 		} else {
 			throw new RestApiException($response);
 		}
@@ -209,8 +231,8 @@ class FlywireInvoiceAPI {
 	 * @throws Exception
 	 **/
 	public function createContact($contact) {
-		$response = $this->_client->post('/contact', $contact);
-		if ($response->info->http_code == 200) {
+		$response = $this->_client->post('/contact', json_encode($contact), $this->_cTypeJson);
+		if ($response->info->http_code == 201) {
 			$data = json_decode($response->response, true);
 			if ($data['companyId']) {
 				return $data;
