@@ -19,3 +19,5 @@ define('FLYWIRE_COMPANY_ID', 239818);
 define('FLYWIRE_COMPANY_PAYCONFIG', 'MYCONFIG');
 // FLYWIRE_ACCOUNTNUMBER_PREFIX is the option prefix for accountnumbers in Flywire
 define('FLYWIRE_ACCOUNTNUMBER_PREFIX', 'myapp_');
+// ALLOWED_AJAX_ORIGIN is the permitted AJAX origin
+define('ALLOWED_AJAX_ORIGIN', 'myinst.primo.exlibrisgroup.com');
