@@ -41,10 +41,10 @@ if ($patronId) {
 		$almaUser = $almaUserAPI->getUserByExternalId($patronId);
 		$almaFees = $almaUserAPI->getFees($almaUser['primary_id']);
 		if ($almaFees) {
-			$flywirePatron = $flywireInvoiceAPI->getContactByAccountNumber($patronId);
+			$flywirePatron = $flywireInvoiceAPI->getContactByAccountNumber(FLYWIRE_ACCOUNTNUMBER_PREFIX.$patronId);
 			if (!$flywirePatron) {
 				$contact = constructContact($almaUser);
-				$flywirePatron = $flywireInvoiceAPI->getCreateContact($contact);
+				$flywirePatron = $flywireInvoiceAPI->createContact($contact);
 			}
 			$flywireInvoice = constructInvoice($flywirePatron, $almaFees);
 			$flywireInvoiceAPI->deleteInvoices($flywirePatron);
@@ -142,7 +142,7 @@ function constructContact($user) {
 	foreach ($user['contact_info']['address'] as $address) {
 		if (!count($preferredAddress) || $address['preferred']) {
 			$preferredAddress = array(
-				'country' => $address['country']['value'],
+				'country' => $address['country']['value'] ? $address['country']['value'] : 'US',
 				'street1' => $address['line1'],
 				'street2' => $address['line2'].($address['line3'] ? ', '.$address['line3'] : '').($address['line4'] ? ', '.$address['line4'] : '').($address['line5'] ? ', '.$address['line5'] : ''),
 				'city' => $address['city'],
@@ -164,7 +164,7 @@ function constructContact($user) {
 			'state' => $preferredAddress['state'],
 			'postalCode' => $preferredAddress['postalCode'],
 		),
-		'accountNumber' => 'alma_'.$user['primary_id'],
+		'accountNumber' => FLYWIRE_ACCOUNTNUMBER_PREFIX.$user['primary_id'],
 		'tags' => array(
 			array(
 				'name' => 'CUSTOMER',
