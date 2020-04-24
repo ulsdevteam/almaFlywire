@@ -25,7 +25,7 @@ class AlmaUserAPI extends AlmaAPI {
 	 * @throws Exception
 	 **/
 	public function getUserByExternalId($externalId) {
-		return $this->_getExpecting($this->_endpoint.'/'.urlencode($externalId), 200, 'User by External Id');
+		return $this->_getExpecting($this->_endpoint.'/'.urlencode($externalId), 200);
 	}
 
 	/**
@@ -34,7 +34,7 @@ class AlmaUserAPI extends AlmaAPI {
 	 * @throws Exception
 	 **/
 	public function getFees($userId) {
-		$fees = $this->_getExpecting($this->_endpoint.'/'.urlencode($userId).'/fees/', 200, 'User Fees');
+		$fees = $this->_getExpecting($this->_endpoint.'/'.urlencode($userId).'/fees/', 200);
 		if ($fees['total_record_count'] === 0) {
 			return false;
 		} else {
