@@ -80,4 +80,11 @@ class AlmaAPI {
 		}
 	}
 
+	public function getPublicKey() {
+		$response = $this->_client->get('/primo/v1/instPublicKey');
+		if ($response->info->http_code == 200) {
+			return $reponse->response;
+		}
+		throw new RestApiException($response);
+	}
 }
