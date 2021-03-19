@@ -8,39 +8,46 @@
  * @brief Respond to an incoming HTTP request by querying outstanding fines/fees in Alma and posting them to Flywire.
  *
 **/
-require('AlmaUserAPI.inc.php');
+require '../bootstrap.php';
 require('FlywireInvoiceAPI.inc.php');
 require('AlmaFlywireBridge.inc.php');
-require('settings.php'); // See settings.template.php
 
 // Establish cross-origin policy
-if (isset($_SERVER['HTTP_ORIGIN'])) {
-	$origin_hostname = preg_replace('|^https?://|', '', $_SERVER['HTTP_ORIGIN']);
-	if ($origin_hostname !== ALLOWED_AJAX_ORIGIN) {
-		$error = 'Cross origin request disallowed';
-	} else {
-		header('Access-Control-Allow-Origin: '.$_SERVER['HTTP_ORIGIN']);
-		header('Access-Control-Allow-Credentials: true');
-		header('Access-Control-Allow-Methods: GET, OPTIONS');
-		header('Access-Control-Allow-Headers; Origin');
-		header('P3P: CP="CAO PSA OUR"');
-		if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-			exit;
-		}
-	}
-}
+establish_crossorigin_headers('GET, OPTIONS');
 
-$patronId = $_SERVER{SAML_USER_VARIABLE};
 $almaFees = null;
 $flywireInvoice = null;
 $error = null;
-if ($patronId) {
-	$almaUserAPI = new AlmaUserAPI(ALMA_URL, ALMA_API_KEY);
+$uid = null;
+// Process request
+$response = array(500 => 'Unexpected error');
+$token = $_GET['jwt'];
+if (!$token) {
+	$response = array(401 => 'No authentication token');
+} else {
+	try {
+		$primo = new Scriptotek\PrimoSearch\Primo([
+			'apiKey' => ALMA_API_KEY,
+			'region' => ALMA_REGION,
+			'vid'    => '',
+			'scope'  => 'default_scope',
+		]);
+		
+		$pubKey = $primo->getPublicKey();
+		$jwt = Jose\Easy\Load::jws($token)->exp()->key($pubKey)->run();
+		$uid = $jwt->claims->get('userName');
+	} catch (Exception $e) {
+		$response = array(500 => $e->getCode.' '.$e->getMessage());
+		error_log(get_class($e).': ('.$e->getCode().') '.$e->getMessage());
+	}
+}
+if ($uid) {
+	$alma = new Scriptotek\Alma\Client(ALMA_API_KEY, ALMA_REGION);
 	$flywireInvoiceAPI = new FlywireInvoiceAPI(FLYWIRE_TEST, FLYWIRE_CLIENT_ID, FLYWIRE_CLIENT_SECRET, FLYWIRE_COMPANY_REF, FLYWIRE_COMPANY_ID);
 	try {
 		$flywirePatron = null;
-		$almaUser = $almaUserAPI->getUserByExternalId($patronId);
-		$almaFees = $almaUserAPI->getFees($almaUser['primary_id']);
+		$almaUser = $alma->users->get($uid);
+		$almaFees = $almaUser->fees->get();
 		if ($almaFees) {
 			$flywirePatron = $flywireInvoiceAPI->getContactByAccountNumber(FLYWIRE_ACCOUNTNUMBER_PREFIX.$patronId);
 			if (!$flywirePatron) {
@@ -53,11 +60,9 @@ if ($patronId) {
 		}
 	} catch (Exception $ex) {
 		error_log($ex);
+		$response = array(500 => $e->getCode.' '.$e->getMessage());
 		$error = 'Please try again later';
 	}
-} else {
-	error_log('Enviroment variable '.SAML_USER_VARIABLE.' was empty.');
-	$error = 'Authentication problem.';
 }
 header('Content-type: application/json');
 if ($error) {
